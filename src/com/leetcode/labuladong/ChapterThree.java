@@ -4,7 +4,7 @@ import com.leetcode.labuladong.entity.TreeNode;
 import sun.awt.image.ImageWatched;
 import sun.reflect.generics.tree.Tree;
 
-import java.util.LinkedList;
+import java.util.*;
 
 public class ChapterThree {
     // 98. 验证二叉搜索树 3.3.1 判断BST的合法性
@@ -195,5 +195,99 @@ public class ChapterThree {
         return root;
     }
 
+    // 3.5.5 层序遍历序列化二叉树
+    public String serializeLevelTraverse(TreeNode root) {
+        if (root == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        // 初始化队列，将root加入队列
+        Queue<TreeNode> q = new LinkedList<>();
+        q.offer(root);
+        while (!q.isEmpty()) {
+            TreeNode cur = q.poll();
+            if (cur == null) {
+                sb.append(NULL).append(SEP);
+                continue;
+            }
+            sb.append(cur.val).append(SEP);
+            q.offer(cur.left);
+            q.offer(cur.right);
+        }
+        return sb.toString();
+    }
+
+    // 236. 二叉树的最近公共祖先 3.6
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // base case
+        if (root == null) {
+            return null;
+        }
+        if (root == p || root == q) {
+            return root;
+        }
+
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if (left != null && right != null) {
+            return root;
+        }
+        if (left != null) {
+            return left;
+        }
+        if (right != null) {
+            return right;
+        }
+        return null;
+    }
+
+    // 496. 下一个更大元素 I 3.7.1
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        // 存放nums[2]中下一个更大的数
+        HashMap<Integer, Integer> ansMap = new HashMap<>();
+        for (int i = nums2.length - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && stack.peek() <= nums2[i]) {
+                stack.pop();
+            }
+            ansMap.put(nums2[i], stack.isEmpty() ? -1 : stack.peek());
+            stack.push(nums2[i]);
+        }
+
+        int[] res = new int[nums1.length];
+        for (int i = 0; i < nums1.length; i++) {
+            res[i] = ansMap.get(nums1[i]);
+        }
+        return res;
+    }
+
+    // 739. 每日温度 3.7.2
+    public int[] dailyTemperatures(int[] temperatures) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int[] ans = new int[temperatures.length]; // 这里放元素索引，而不是元素
+        for (int i = temperatures.length - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && temperatures[stack.peek()] <= temperatures[i]) {
+                stack.pop();
+            }
+            ans[i] = stack.isEmpty() ? 0 : stack.peek() - i; // 得到索引间距
+            stack.push(i); // 加入索引，而不是元素
+        }
+        return ans;
+    }
+
+    // 503. 下一个更大元素 II 3.7.3
+    public int[] nextGreaterElements(int[] nums) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int[] ans = new int[nums.length];
+        // 假装nums这个数组翻倍了
+        for (int i = 2 * nums.length - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && stack.peek() <= nums[i % nums.length]) {
+                stack.pop();
+            }
+            ans[i % nums.length] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(nums[i % nums.length]);
+        }
+        return ans;
+    }
 
 }
