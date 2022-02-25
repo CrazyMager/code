@@ -1,8 +1,8 @@
 package com.leetcode.labuladong;
 
+import com.leetcode.labuladong.entity.ListNode;
+import com.leetcode.labuladong.entity.MonotonicQueue;
 import com.leetcode.labuladong.entity.TreeNode;
-import sun.awt.image.ImageWatched;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.*;
 
@@ -241,6 +241,7 @@ public class ChapterThree {
         return null;
     }
 
+    // [求下一个更大元素都可以用单调栈解决]
     // 496. 下一个更大元素 I 3.7.1
     public int[] nextGreaterElement(int[] nums1, int[] nums2) {
         Deque<Integer> stack = new ArrayDeque<>();
@@ -290,4 +291,113 @@ public class ChapterThree {
         return ans;
     }
 
+    // 239. 滑动窗口最大值 3.8 单调队列 可以解决单调窗口的一系列问题
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        MonotonicQueue window = new MonotonicQueue();
+        int[] res = new int[nums.length - k + 1];
+        for (int i = 0; i < nums.length; i++) {
+            if (i < k - 1) {
+                window.push(nums[i]);
+            } else {
+                window.push(nums[i]);
+                res[i + 1 - k] = window.max();
+                window.pop(nums[i - k + 1]);
+            }
+        }
+        return res;
+    }
+
+    // 234. 回文链表
+    public boolean isPalindrome(ListNode head) {
+        return true;
+    }
+
+    // 206. 反转链表 3.10.1 反转整个链表
+    ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode last = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+        return last;
+    }
+
+    // 92. 反转链表 II 3.10.3
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+        ListNode leftNode = head, rightNode = null, pre = null;
+        int num = left;
+        // left,right两头截断，使用反转整个链表
+        while (--num > 0) {
+            pre = leftNode;
+            leftNode = leftNode.next;
+        }
+        if (leftNode != head) {
+            pre.next = null;
+        }
+        rightNode = leftNode;
+        num = right - left;
+        while (num-- > 0) {
+            rightNode = rightNode.next;
+        }
+        ListNode rightNodeNext = null;
+        if (rightNode.next != null) {
+            rightNodeNext = rightNode.next;
+        }
+        rightNode.next = null;
+        ListNode leftHead = reverseList(leftNode);
+        if (pre != null) {
+            pre.next = rightNode;
+        }
+        if (rightNodeNext != null) {
+            leftNode.next = rightNodeNext;
+        }
+        return left == 1 ? leftHead : head;
+    }
+
+    // 25. K 个一组翻转链表 3.11
+    public ListNode reverseKGroup(ListNode head, int k) {
+        if (head == null) {
+            return null;
+        }
+        // 区间[a, b)包含k个待反转元素
+        ListNode a = head, b = head;
+        for (int i = 0; i < k; i++) {
+            // 不足k个，不需要反转，base case
+            if (b == null) {
+                return head;
+            }
+            b = b.next;
+        }
+        // 反转前k个元素
+        ListNode newHead = reverse(a, b);
+        // 递归反转后续链表并连接起来
+        a.next = reverseKGroup(b, k);
+        return newHead;
+    }
+    // 反转区间[a, b)上的元素
+    public ListNode reverse(ListNode a, ListNode b) {
+        ListNode pre = null, cur = a, next = a;
+        while (cur != b) {
+            next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+
+    public static void main(String[] args) {
+        ChapterThree chapterThree = new ChapterThree();
+        int[] nums = new int[]{1, 2, 3, 4, 5};
+        ListNode head = new ListNode(nums[0]);
+        ListNode pre = head;
+        for (int i = 1; i < nums.length; i++) {
+            ListNode node = new ListNode(nums[i]);
+            pre.next = node;
+            pre = node;
+        }
+        ListNode list = chapterThree.reverseKGroup(head, 2);
+        System.out.println(list);
+    }
 }
